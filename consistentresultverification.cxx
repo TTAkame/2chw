@@ -5,7 +5,9 @@
 #include"json.hpp"
 
 
-void findMismatch(nlohmann::json jObj1, nlohmann::json jObj2, int arraySize, int numSamples) {
+nlohmann::json findMismatch(nlohmann::json jObj1, nlohmann::json jObj2, int arraySize, int numSamples) {
+   nlohmann::json result;
+
    for (int i = 1;i <= numSamples; i++) {
       std::string sampleNum;
       if (i < 10) {
@@ -13,15 +15,16 @@ void findMismatch(nlohmann::json jObj1, nlohmann::json jObj2, int arraySize, int
       } else {
          sampleNum = "Sample" + std::to_string(i);
       }
-         std::cout << sampleNum << std::endl;
+         /* std::cout << sampleNum << std::endl; */
+         nlohmann::json mismatches;
          for (int j = 0;j < arraySize; j++) {
             if (jObj2[sampleNum][j] != jObj1[sampleNum][j]) {
-               std::cout << jObj2[sampleNum][j] << " not equal to " << jObj1[sampleNum][j] << std::endl;
-            } else {
-               std::cout << "not mismatch" << std::endl;
+               mismatches.push_back({jObj2[sampleNum][j], jObj1[sampleNum][j]});
             }
          }
+         result[sampleNum] = mismatches;
    }
+   return result;
 }
 
 int main(int argc, char** argv) {
@@ -33,6 +36,7 @@ int main(int argc, char** argv) {
    //declare json objects
    nlohmann::json sample;
    nlohmann::json almostSample;
+   nlohmann::json output;
 
    //parse file to json object
    file1 >> sample;
@@ -43,10 +47,9 @@ int main(int argc, char** argv) {
    int numSamples = sample["metadata"]["numSamples"];
 
    //findMismatch funciton
+   output = findMismatch(almostSample,sample,arraySize,numSamples);
 
-   /* std::cout << sample.dump(2) << std::endl; */
-
-   findMismatch(almostSample,sample,arraySize,numSamples);
+   std::cout << output.dump(2) << std::endl;
 
    file1.close();
    file2.close();
